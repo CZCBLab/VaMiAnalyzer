@@ -34,10 +34,10 @@ This program uses [BaSic](https://github.com/marrlab/BaSiC) for Background and S
 1. Ensure that your input folder contains the `.tif` images you want to process.
 2. Specify the paths for the `input_folder` and `output_folder` in the script.
 3. (optional) This program also provides a contrast_balance method for contrast enhencement. This function is helpful if the images has low local contrast. To apply this method, set `contrast_balance` parameter to `True` and/or set `clip_limit` and `tile_grid_size` value.
-4. Run the script:
+4. Run the script below. Square brackets ('[]') are used to denote optional parameters.
 
 ```
-python correct.py
+python correct.py <path/to/input_folder> <path/to/output_folder> [--contrast_balance] [--clip_limit <clip_limit>] [--tile_grid_size <tile_grid_size>]
 ```
 
 ### Output
@@ -64,10 +64,10 @@ This part takes the corrected image from step 1 as its input and analyzes the tu
 ### Usage
 1. Ensure that your input path contains the `.tif` corrected images you want to process or specify a single `.tif` image file.
 2. Specify the paths for the `input_path` and `output_dir` in the script.
-3. Run the script:
+3. Run the script below. Square brackets ('[]') are used to denote optional parameters.
 
 ```
-python analyze.py
+python analyze.py <path/to/input> <path/to/output> [--mean <mean_value>] [--std <std_value>] [--window_size <window_size>] [--step_size <step_size>] [--merge_threshold <merge_threshold>] [--min_tubular_length <min_tubular_length>] [--min_end_tubular_length <min_end_tubular_length>] [--area_threshold <area_threshold>] [--std_threshold <std_threshold>] [--radius <radius>] [--margin <margin>]
 ```
 
 ### Output

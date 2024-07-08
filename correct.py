@@ -3,6 +3,7 @@ import numpy as np
 from basicpy import BaSiC
 import os
 import matplotlib.pyplot as plt
+import argparse
 
 def adjust_mean_std(np_images, target_mean, target_std):
     adjusted_images = []
@@ -86,6 +87,12 @@ def correct_images(input_folder, output_folder, contrast_balance=False, clip_lim
             summary_file.write('\n')  
 
 if __name__=="__main__":
-    input_folder = '/Users/zxy/iCloud-backup/Documents/BU实习/imagej/VaMiAnalyzer/images'
-    output_folder = '/Users/zxy/iCloud-backup/Documents/BU实习/imagej/VaMiAnalyzer/corrected'
-    correct_images(input_folder, output_folder)
+    parser = argparse.ArgumentParser(description='Correct images in the target folder.')
+    parser.add_argument('input_folder', type=str, help='Path to the input folder containing .tif images.')
+    parser.add_argument('output_folder', type=str, help='Path to the output folder where corrected images will be saved.')
+    parser.add_argument('--contrast_balance', action='store_true', help='Apply local contrast balancing to the images.')
+    parser.add_argument('--clip_limit', type=float, default=2, help='Threshold for contrast limiting if local contrast enhancement is applied.')
+    parser.add_argument('--tile_grid_size', type=int, default=8, help='Size of the grid for the histogram equalization if local contrast enhancement is applied.')
+
+    args = parser.parse_args()
+    correct_images(args.input_folder, args.output_folder, args.contrast_balance, args.clip_limit, args.tile_grid_size)

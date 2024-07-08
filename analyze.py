@@ -7,6 +7,8 @@ import networkx as nx
 from tqdm import tqdm
 from collections import deque, defaultdict
 from matplotlib.colors import ListedColormap
+import csv
+import argparse
 
 directions1 = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]
 directions2 = [[-2, 2], [-1, 2], [0, 2], [1, 2], [2, 2],
@@ -393,6 +395,16 @@ def draw_result(skeleton, image, mask_image, branch_points, loops, filename, out
     # plt.show()
     plt.close()
     print('done!')
+
+def save_results_to_csv(results, csv_path):
+    sorted_results = sorted(results, key=lambda x: x['filename'])
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        fieldnames = ['filename', 'num_loops', 'num_branch_points', 'num_tubulars']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in sorted_results:
+            writer.writerow(result)
     
 def process_images(input_path, output_dir, mean, std, window_size, step_size, merge_threshold, min_tubular_length, min_end_tubular_length, area_threshold, std_threshold, radius, margin):
     if not os.path.exists(output_dir):
@@ -406,6 +418,7 @@ def process_images(input_path, output_dir, mean, std, window_size, step_size, me
         dir = input_path
         filenames = [f for f in os.listdir(input_path) if f.endswith(".tif")]
 
+    results = []
     for filename in tqdm(filenames, desc='Processing Images'):
         file_path = os.path.join(dir, filename)
         image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
@@ -436,9 +449,32 @@ def process_images(input_path, output_dir, mean, std, window_size, step_size, me
         num_tubulars = count_edges(pruned_graph, min_tubular_length)
 
         draw_result(new_skel, image, mask_image, branch_points, valid_loops, filename, output_dir)
-        print(f"Number of loops: {len(valid_loops)}, Number of branch points: {len(branch_points)}, Number of tubes: {num_tubulars}")
+
+        results.append({
+            'filename': filename,
+            'num_loops': len(valid_loops),
+            'num_branch_points': len(branch_points),
+            'num_tubulars': num_tubulars
+        })
+
+    csv_path = os.path.join(output_dir, 'results.csv')
+    save_results_to_csv(results, csv_path)
 
 if __name__=="__main__":
-    input_path = '/Users/zxy/iCloud-backup/Documents/BU实习/imagej/VaMiAnalyzer/input/corrected_2.tif'
-    output_dir = '/Users/zxy/iCloud-backup/Documents/BU实习/imagej/VaMiAnalyzer/output'
-    process_images(input_path, output_dir, 95, 14, 20, 10, 50, 120, 200, 3000, 8, 150, 5)
+    parser = argparse.ArgumentParser(description='Process images and analyze tubular structures.')
+    parser.add_argument('input_path', type=str, help='Path to the input file or directory.')
+    parser.add_argument('output_dir', type=str, help='Path to the output directory.')
+    parser.add_argument('--mean', type=int, default=95, help='Mean value for adjusting image.')
+    parser.add_argument('--std', type=int, default=14, help='Standard deviation value for adjusting image.')
+    parser.add_argument('--window_size', type=int, default=20, help='Window size for binary image processing.')
+    parser.add_argument('--step_size', type=int, default=10, help='Step size for binary image processing.')
+    parser.add_argument('--merge_threshold', type=int, default=50, help='Threshold for merging close nodes in the graph.')
+    parser.add_argument('--min_tubular_length', type=int, default=120, help='Minimum length of tubular structures to be considered for counting the number of tubes.')
+    parser.add_argument('--min_end_tubular_length', type=int, default=200, help='Minimum length of end tubular structures for pruning.')
+    parser.add_argument('--area_threshold', type=int, default=3000, help='Minimum area for regions to be considered in binary image.')
+    parser.add_argument('--std_threshold', type=int, default=8, help='Standard deviation threshold for binary image creation.')
+    parser.add_argument('--radius', type=int, default=150, help='Radius for local region processing in small branch removal.')
+    parser.add_argument('--margin', type=int, default=5, help='Margin to be excluded from binary image creation.')
+
+    args = parser.parse_args()
+    process_images(args.input_path, args.output_dir, args.mean, args.std, args.window_size, args.step_size, args.merge_threshold, args.min_tubular_length, args.min_end_tubular_length, args.area_threshold, args.std_threshold, args.radius, args.margin)
