@@ -380,16 +380,21 @@ def draw_result(skeleton, image, mask_image, branch_points, loops, filename, out
 
     plt.figure()
     plt.imshow(image)
-    x_coords, y_coords = zip(*[(node[0], node[1]) for node in branch_points])
-    plt.scatter(y_coords, x_coords, color='yellow', s=20, edgecolors='black')
-    for index, loop in enumerate(loops):
-        x_coords, y_coords = zip(*loop)
-        centroid_x = sum(x_coords) / len(x_coords)
-        centroid_y = sum(y_coords) / len(y_coords)
-        plt.text(centroid_y, centroid_x, str(index + 1), 
-         color='orange', fontsize=12,
-         horizontalalignment='center', verticalalignment='center',
-         bbox=dict(facecolor='none', edgecolor='orange', boxstyle='circle,pad=0.3'))
+
+    if branch_points:
+        x_coords, y_coords = zip(*[(node[0], node[1]) for node in branch_points])
+        plt.scatter(y_coords, x_coords, color='yellow', s=20, edgecolors='black')
+
+    if loops: 
+        for index, loop in enumerate(loops):
+            x_coords, y_coords = zip(*loop)
+            centroid_x = sum(x_coords) / len(x_coords)
+            centroid_y = sum(y_coords) / len(y_coords)
+            plt.text(centroid_y, centroid_x, str(index + 1), 
+            color='orange', fontsize=12,
+            horizontalalignment='center', verticalalignment='center',
+            bbox=dict(facecolor='none', edgecolor='orange', boxstyle='circle,pad=0.3'))
+
     plt.axis('off')
     plt.savefig(f"{output_dir}/result_{filename}")
     # plt.show()
