@@ -281,8 +281,9 @@ def rebuild_skeleton(skeleton, merged_graph, pathdict, groupdict):
                         newskel = newskel + pathdict[(edge[0], l_0[i])] + pathdict[(l_0[i], l_1[j])] + pathdict[(l_1[j], l_0[i])] + pathdict[(l_1[j], edge[1])] + pathdict[(l_0[i], edge[0])] + pathdict[(edge[1], l_1[j])]
     
     newskelimage = np.zeros(skeleton.shape)
-    rows, cols = zip(*newskel)
-    newskelimage[rows, cols] = True
+    if (newskel):   
+        rows, cols = zip(*newskel)
+        newskelimage[rows, cols] = True
     
     return newskelimage
 
